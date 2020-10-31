@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 受到权限保护的资源
+ */
 @RestController
-@RequestMapping("user")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
@@ -20,8 +23,8 @@ public class UserController {
 
     /***
      * 读权限或写权限可访问，返回登录用户名
-     * @param authentication
-     * @return
+     * @param authentication 身份认证
+     * @return name
      */
     @PreAuthorize("hasAuthority('READ') or hasAuthority('WRITE')")
     @GetMapping("name")
@@ -32,8 +35,8 @@ public class UserController {
     /**
      * 读权限或写权限可访问，返回登录用户信息
      *
-     * @param authentication
-     * @return
+     * @param authentication 身份认证
+     * @return OAuth2Authentication信息
      */
     @PreAuthorize("hasAuthority('READ') or hasAuthority('WRITE')")
     @GetMapping
@@ -44,8 +47,8 @@ public class UserController {
     /**
      * 只有写权限可以访问，返回访问令牌中的额外信息
      *
-     * @param authentication
-     * @return
+     * @param authentication 身份认证
+     * @return Object
      */
     @PreAuthorize("hasAuthority('WRITE')")
     @PostMapping
