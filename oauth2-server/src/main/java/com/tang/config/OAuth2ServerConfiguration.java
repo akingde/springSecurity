@@ -20,8 +20,6 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
@@ -39,6 +37,38 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    /**
+     * 授权服务器终结点配置器，干了以下4件事儿：
+     * 1. 配置我们的令牌存放方式为JWT方式，而不是内存、数据库或Redis方式。
+     * JWT是Json Web Token的缩写，也就是使用JSON数据格式包装的令牌，由.号把整个JWT分隔为头、数据体、签名三部分。
+     * JWT保存Token虽然易于使用但是不是那么安全，一般用于内部，且需要走HTTPS并配置比较短的失效时间。
+     * 2. 配置JWT Token的非对称加密来进行签名
+     * 3. 配置一个自定义的Token增强器，把更多信息放入Token中
+     * 4. 配置使用JDBC数据库方式来保存用户的授权批准记录
+     *
+     * @param endpoints 终结点
+     */
+    @Override
+    public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
+        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+        // Token令牌增强器(自定义、非对称加密)
+        tokenEnhancerChain.setTokenEnhancers(
+                Arrays.asList(tokenEnhancer(), jwtTokenEnhancer()));
+
+        // 存用户的授权批准记录
+        endpoints.approvalStore(approvalStore())
+                // 授权码的保存
+                .authorizationCodeServices(authorizationCodeServices())
+                // Token存储方式
+                .tokenStore(tokenStore())
+                // Token令牌增强器(对称/非对称加密处理)
+                .tokenEnhancer(tokenEnhancerChain)
+                // 用户信息
+//                .userDetailsService().
+                // 身份验证管理器
+                .authenticationManager(authenticationManager);
+    }
 
     /**
      * OAuth2 客户端信息配置
@@ -68,36 +98,6 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
                 .allowFormAuthenticationForClients()
                 // 密码解析
                 .passwordEncoder(NoOpPasswordEncoder.getInstance());
-    }
-
-    /**
-     * 授权服务器终结点配置器，干了以下4件事儿：
-     * 1. 配置我们的令牌存放方式为JWT方式，而不是内存、数据库或Redis方式。
-     * JWT是Json Web Token的缩写，也就是使用JSON数据格式包装的令牌，由.号把整个JWT分隔为头、数据体、签名三部分。
-     * JWT保存Token虽然易于使用但是不是那么安全，一般用于内部，且需要走HTTPS并配置比较短的失效时间。
-     * 2. 配置JWT Token的非对称加密来进行签名
-     * 3. 配置一个自定义的Token增强器，把更多信息放入Token中
-     * 4. 配置使用JDBC数据库方式来保存用户的授权批准记录
-     *
-     * @param endpoints 终结点
-     */
-    @Override
-    public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
-        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-        // Token令牌增强器(自定义、非对称加密)
-        tokenEnhancerChain.setTokenEnhancers(
-                Arrays.asList(tokenEnhancer(), jwtTokenEnhancer()));
-
-        // 存用户的授权批准记录
-        endpoints.approvalStore(approvalStore())
-                // 授权码的保存
-                .authorizationCodeServices(authorizationCodeServices())
-                // Token存储方式
-                .tokenStore(tokenStore())
-                // Token令牌增强器(对称/非对称加密处理)
-                .tokenEnhancer(tokenEnhancerChain)
-                // 身份验证管理器
-                .authenticationManager(authenticationManager);
     }
 
 
@@ -155,15 +155,15 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
         return converter;
     }
 
-    /**
-     * 配置登录页面的视图信息（其实可以独立一个配置类更规范）
-     */
-    @Configuration
-    static class MvcConfig implements WebMvcConfigurer {
-        @Override
-        public void addViewControllers(ViewControllerRegistry registry) {
-            registry.addViewController("login").setViewName("login");
-        }
-    }
+//    /**
+//     * 配置登录页面的视图信息（其实可以独立一个配置类更规范）
+//     */
+//    @Configuration
+//    static class MvcConfig implements WebMvcConfigurer {
+//        @Override
+//        public void addViewControllers(ViewControllerRegistry registry) {
+//            registry.addViewController("login").setViewName("login");
+//        }
+//    }
 
 }

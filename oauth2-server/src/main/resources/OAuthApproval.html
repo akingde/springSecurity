@@ -1,0 +1,22 @@
+<html>
+<body>
+<h1>OAuth Approval</h1>
+<p>Do you authorize "userservice3" to access your protected resources?</p>
+<form id="confirmationForm" name="confirmationForm" action="/oauth/authorize" method="post">
+    <input name="user_oauth_approval" value="true" type="hidden"/>
+    <input type="hidden" name="_csrf" value="230ab5c3-1ac1-4290-9c89-506e24c71a12"/>
+    <ul>
+        <li>
+            <div class="form-group">
+                scope.FOO:
+                <input type="radio" name="scope.FOO" value="true">Approve</input>
+                <input type="radio" name="scope.FOO" value="false" checked>Deny</input>
+            </div>
+        </li>
+    </ul>
+    <label>
+        <input name="authorize" value="Authorize" type="submit"/>
+    </label>
+</form>
+</body>
+</html>
