@@ -1,5 +1,7 @@
 package com.tang.config;
 
+import com.tang.oauth.UserNameUserDetailsServiceImpl;
+import com.tang.oauth.token.granter.UsernameTokenGranter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +13,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.CompositeTokenGranter;
+import org.springframework.security.oauth2.provider.TokenGranter;
 import org.springframework.security.oauth2.provider.approval.JdbcApprovalStore;
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
@@ -22,7 +26,10 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 配置授权服务器，OAuth2 服务相关配置
@@ -37,6 +44,13 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    /**
+     * 通过用户名进行登陆
+     */
+    @Autowired
+    private UserNameUserDetailsServiceImpl userNameUserDetailsService;
+
 
     /**
      * 授权服务器终结点配置器，干了以下4件事儿：
@@ -58,7 +72,7 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
 
         // 存用户的授权批准记录
         endpoints.approvalStore(approvalStore())
-                // 授权码的保存
+                // 【授权码】的保存
                 .authorizationCodeServices(authorizationCodeServices())
                 // Token存储方式
                 .tokenStore(tokenStore())
@@ -67,11 +81,20 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
                 // 用户信息
 //                .userDetailsService().
                 // 身份验证管理器
-                .authenticationManager(authenticationManager);
+                .authenticationManager(authenticationManager)
+                // 默认的登陆认证方式
+                .userDetailsService(userNameUserDetailsService)
+                .tokenGranter(tokenGranter(endpoints));
+    }
+
+    private TokenGranter tokenGranter(final AuthorizationServerEndpointsConfigurer endpoints) {
+        List<TokenGranter> granters = new ArrayList<>(Collections.singletonList(endpoints.getTokenGranter()));
+        granters.add(new UsernameTokenGranter(endpoints.getTokenServices(), endpoints.getClientDetailsService(), endpoints.getOAuth2RequestFactory(), this.userNameUserDetailsService));
+        return new CompositeTokenGranter(granters);
     }
 
     /**
-     * OAuth2 客户端信息配置
+     * OAuth2 客户端信息配置（数据库访问）
      * 我们配置了使用数据库来维护客户端信息。虽然在各种Demo中我们经常看到的是在内存中维护客户端信息，通过配置直接写死在这里。
      * 但是，对于实际的应用我们一般都会用数据库来维护这个信息，甚至还会建立一套工作流来允许客户端自己申请ClientID，实现OAuth客户端接入的审批。
      *
@@ -155,15 +178,5 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
         return converter;
     }
 
-//    /**
-//     * 配置登录页面的视图信息（其实可以独立一个配置类更规范）
-//     */
-//    @Configuration
-//    static class MvcConfig implements WebMvcConfigurer {
-//        @Override
-//        public void addViewControllers(ViewControllerRegistry registry) {
-//            registry.addViewController("login").setViewName("login");
-//        }
-//    }
 
 }

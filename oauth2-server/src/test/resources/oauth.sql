@@ -11,7 +11,7 @@
  Target Server Version : 50725
  File Encoding         : 65001
 
- Date: 31/10/2020 16:05:15
+ Date: 06/11/2020 16:41:28
 */
 
 SET NAMES utf8mb4;
@@ -82,6 +82,29 @@ CREATE TABLE `oauth_code`  (
   `code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `authentication` blob NULL
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for user_info
+-- ----------------------------
+DROP TABLE IF EXISTS `user_info`;
+CREATE TABLE `user_info`  (
+  `id` bigint(16) NOT NULL AUTO_INCREMENT,
+  `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `addr` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `sex` int(3) NULL DEFAULT NULL,
+  `mobile` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of user_info
+-- ----------------------------
+INSERT INTO `user_info` VALUES (1, 'reader', '$2a$04$C6pPJvC1v6.enW6ZZxX.luTdpSI/1gcgTVN7LhvQV6l/AfmzNU/3i', 'xx@qq.com', '读数据', 12, '123');
+INSERT INTO `user_info` VALUES (2, 'writer', '$2a$04$M9t2oVs3/VIreBMocOujqOaB/oziWL0SnlWdt8hV4YnlhQrORA0fS', 'yy@qq.com', '写数据', 18, '234');
+INSERT INTO `user_info` VALUES (3, 'zhangsan', '$2a$04$M9t2oVs3/VIreBMocOujqOaB/oziWL0SnlWdt8hV4YnlhQrORA0fS', 'zz@qq.com', '张三', 32, '345');
+INSERT INTO `user_info` VALUES (4, 'lisi', '$2a$04$M9t2oVs3/VIreBMocOujqOaB/oziWL0SnlWdt8hV4YnlhQrORA0fS', 'tt@qq.com', '李四', 23, '456');
 
 -- ----------------------------
 -- Table structure for users

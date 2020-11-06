@@ -55,6 +55,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 匿名访问的路径（忽略的路径）
                 .antMatchers("/login", "/oauth/authorize")
                 .permitAll()
+                // 其他任何请求都要进行认证
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().loginPage("/login");
