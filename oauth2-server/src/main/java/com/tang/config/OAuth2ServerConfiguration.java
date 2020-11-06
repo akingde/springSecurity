@@ -110,6 +110,7 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
      */
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
+        // 检查令牌访问
         security.checkTokenAccess("permitAll()")
                 // 允许表单提交认证
                 .allowFormAuthenticationForClients()
