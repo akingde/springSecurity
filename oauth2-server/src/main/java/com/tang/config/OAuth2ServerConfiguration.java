@@ -87,12 +87,6 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
                 .tokenGranter(tokenGranter(endpoints));
     }
 
-    private TokenGranter tokenGranter(final AuthorizationServerEndpointsConfigurer endpoints) {
-        List<TokenGranter> granters = new ArrayList<>(Collections.singletonList(endpoints.getTokenGranter()));
-        granters.add(new UsernameTokenGranter(endpoints.getTokenServices(), endpoints.getClientDetailsService(), endpoints.getOAuth2RequestFactory(), this.userNameUserDetailsService));
-        return new CompositeTokenGranter(granters);
-    }
-
     /**
      * OAuth2 客户端信息配置（数据库访问）
      * 我们配置了使用数据库来维护客户端信息。虽然在各种Demo中我们经常看到的是在内存中维护客户端信息，通过配置直接写死在这里。
@@ -121,6 +115,24 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
                 .allowFormAuthenticationForClients()
                 // 密码解析
                 .passwordEncoder(NoOpPasswordEncoder.getInstance());
+    }
+
+
+    /**
+     * token的授权方式 + 自定义的授权方式
+     * AuthorizationCodeTokenGranter：authorization_code
+     * ClientCredentialsTokenGranter：client_credentials
+     * ImplicitTokenGranter：implicit
+     * RefreshTokenGranter：refresh_token
+     * ResourceOwnerPasswordTokenGranter：password
+     *
+     * @param endpoints 端点
+     * @return 授权方式
+     */
+    private TokenGranter tokenGranter(final AuthorizationServerEndpointsConfigurer endpoints) {
+        List<TokenGranter> granters = new ArrayList<>(Collections.singletonList(endpoints.getTokenGranter()));
+        granters.add(new UsernameTokenGranter(endpoints.getTokenServices(), endpoints.getClientDetailsService(), endpoints.getOAuth2RequestFactory(), this.userNameUserDetailsService));
+        return new CompositeTokenGranter(granters);
     }
 
 

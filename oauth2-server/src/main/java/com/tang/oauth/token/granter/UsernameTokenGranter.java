@@ -13,13 +13,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- *
+ * 用户名授权方式
  */
 public class UsernameTokenGranter extends AbstractTokenGranter {
 
     private static final String GRANT_TYPE = "username";
 
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     /**
      * 构造方法提供一些必要的注入的参数
