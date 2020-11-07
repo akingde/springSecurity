@@ -20,14 +20,16 @@ public class UserNameUserDetailsServiceImpl implements UserDetailsService {
     private UserInfoService userInfoService;
 
     @Override
-    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        UserInfo userInfo = userInfoService.getByUserName(s);
+        UserInfo userInfo = userInfoService.getByUserName(username);
         if (userInfo == null) {
-            throw new RuntimeException("用户：" + s + "不存在！");
+            throw new RuntimeException("用户：" + username + "不存在！");
         }
 
-        SecurityUserDetail securityUserDetail = new SecurityUserDetail(userInfo.getUserName(), userInfo.getPassword(), Collections.emptyList());
+        // 可以从 authentication.getUserAuthentication().getPrincipal(); 中获取这里设置的用户信息
+        SecurityUserDetail securityUserDetail = new SecurityUserDetail(
+                userInfo.getUserName(), userInfo.getPassword(), Collections.emptyList());
         securityUserDetail.setEmail(userInfo.getEmail());
         securityUserDetail.setTenantId("xxx");
 

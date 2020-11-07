@@ -82,10 +82,11 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
 //                .userDetailsService().
                 // 身份验证管理器
                 .authenticationManager(authenticationManager)
-                // 默认的登陆认证方式
+                // 默认的登陆认证方式???
                 .userDetailsService(userNameUserDetailsService)
                 .tokenGranter(tokenGranter(endpoints));
     }
+
 
     /**
      * OAuth2 客户端信息配置（数据库访问）
@@ -99,6 +100,7 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.jdbc(dataSource);
     }
+
 
     /**
      * 授权服务器安全配置，这里干了两件事儿。
@@ -132,7 +134,8 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
      */
     private TokenGranter tokenGranter(final AuthorizationServerEndpointsConfigurer endpoints) {
         List<TokenGranter> granters = new ArrayList<>(Collections.singletonList(endpoints.getTokenGranter()));
-        granters.add(new UsernameTokenGranter(endpoints.getTokenServices(), endpoints.getClientDetailsService(), endpoints.getOAuth2RequestFactory(), this.userNameUserDetailsService));
+        granters.add(new UsernameTokenGranter(endpoints.getTokenServices(), endpoints.getClientDetailsService(),
+                endpoints.getOAuth2RequestFactory(), this.userNameUserDetailsService));
         return new CompositeTokenGranter(granters);
     }
 
@@ -147,6 +150,7 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
         return new JdbcAuthorizationCodeServices(dataSource);
     }
 
+
     /**
      * 使用JWT存储
      *
@@ -156,6 +160,7 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
     public TokenStore tokenStore() {
         return new JwtTokenStore(jwtTokenEnhancer());
     }
+
 
     /**
      * 使用JDBC数据库方式来保存用户的授权批准记录
@@ -167,6 +172,7 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
         return new JdbcApprovalStore(dataSource);
     }
 
+
     /**
      * 自定义的Token增强器，把更多信息放入Token中
      *
@@ -177,8 +183,10 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
         return new CustomTokenEnhancer();
     }
 
+
     /**
      * 配置JWT使用非对称加密方式来验证
+     * AccessToken使用JWT的方式
      *
      * @return JWT Token
      */

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 受到权限保护的资源
+ * 受到权限保护的资源，资源ID使用默认值：userservice
  */
 @RestController
 @RequestMapping("/user")

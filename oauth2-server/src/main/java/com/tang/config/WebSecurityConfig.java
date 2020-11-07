@@ -27,7 +27,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * 配置用户账户的认证方式。
+     * 配置用户账户的认证方式。进行密码加密，访问方式是数据库
      * 显然，我们把用户存在了数据库中希望配置JDBC的方式。
      * 此外，我们还配置了使用BCryptPasswordEncoder哈希来保存用户的密码（生产环境中，用户密码肯定不能是明文保存的）
      *
@@ -38,6 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.jdbcAuthentication()
                 .dataSource(dataSource)
+                // 密码加密
                 .passwordEncoder(new BCryptPasswordEncoder());
     }
 
@@ -58,6 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 其他任何请求都要进行认证
                 .anyRequest().authenticated()
                 .and()
+                // 登陆页面
                 .formLogin().loginPage("/login");
     }
 }

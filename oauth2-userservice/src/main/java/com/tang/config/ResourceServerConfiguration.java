@@ -47,6 +47,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
+                // 需要认证
                 .antMatchers("/user/**").authenticated()
                 .anyRequest().permitAll();
     }
@@ -64,7 +65,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
     /**
      * 配置公钥
-     * 用来验证【授权服务器】的token
+     * 用来验证【授权服务器】的token，解码jwt的token
      *
      * @return JwtAccessTokenConverter
      */

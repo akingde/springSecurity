@@ -1,10 +1,11 @@
 package com.tang.oauth.token.granter;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.common.exceptions.InvalidGrantException;
 import org.springframework.security.oauth2.provider.*;
 import org.springframework.security.oauth2.provider.token.AbstractTokenGranter;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
@@ -20,6 +21,7 @@ public class UsernameTokenGranter extends AbstractTokenGranter {
     private static final String GRANT_TYPE = "username";
 
     private final UserDetailsService userDetailsService;
+
 
     /**
      * 构造方法提供一些必要的注入的参数
@@ -44,8 +46,12 @@ public class UsernameTokenGranter extends AbstractTokenGranter {
             throw new RuntimeException("用户不存在");
         }
 
+        // 这里可以对用户名、密码等做校验，但是一般不会使用，
+        // 因为如果使用用户名、密码做校验的话，直接使用自带的password验证即可
         Authentication userAuth = new UsernamePasswordAuthenticationToken(userDetails, "");
         OAuth2Request storedOauth2Request = getRequestFactory().createOAuth2Request(client, tokenRequest);
         return new OAuth2Authentication(storedOauth2Request, userAuth);
     }
+
+
 }

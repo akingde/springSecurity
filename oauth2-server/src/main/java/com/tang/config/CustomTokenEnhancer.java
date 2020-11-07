@@ -11,6 +11,7 @@ import java.util.Map;
 
 /**
  * 自定义的Token增强器，可以把更多的信息放入token中（AccessToken）
+ * 如果使用的是客户端凭据许可类型，这段代码无效，因为和用户没关系
  */
 public class CustomTokenEnhancer implements TokenEnhancer {
 
