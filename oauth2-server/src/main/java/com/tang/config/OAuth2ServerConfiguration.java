@@ -83,7 +83,7 @@ public class OAuth2ServerConfiguration extends AuthorizationServerConfigurerAdap
                 // 身份验证管理器
                 .authenticationManager(authenticationManager)
                 // 默认的登陆认证方式???
-                .userDetailsService(userNameUserDetailsService)
+//                .userDetailsService(userNameUserDetailsService)
                 .tokenGranter(tokenGranter(endpoints));
     }
 

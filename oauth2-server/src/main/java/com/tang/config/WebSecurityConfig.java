@@ -1,13 +1,19 @@
 package com.tang.config;
 
+import com.tang.oauth.UserNameUserDetailsServiceImpl;
+import com.tang.oauth.provider.CustomUserAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.sql.DataSource;
 
@@ -19,6 +25,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private DataSource dataSource;
+
+    @Autowired
+    private UserNameUserDetailsServiceImpl userNameUserDetailsService;
 
     @Override
     @Bean
@@ -61,5 +70,43 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 // 登陆页面
                 .formLogin().loginPage("/login");
+        // 内部维护的是一个 List<AuthenticationProvider>，多次调用，多次添加
+        // 为什么这个认证只对用户名密码模式有效，因为默认的DaoAuthenticationProvider验证的就是用户名密码模式
+        http.authenticationProvider(cusutomProvider());
+        // 实现其他自定义的方式进行认证？？？是通过什么来判断的？
+//        http.authenticationProvider(kerberosServiceAuthenticationProvider());
+    }
+
+
+//    @Bean
+//    public KerberosServiceAuthenticationProvider kerberosServiceAuthenticationProvider() {
+//        KerberosServiceAuthenticationProvider provider = new KerberosServiceAuthenticationProvider();
+//        provider.setTicketValidator(sunJaasKerberosTicketValidator());
+//        provider.setUserDetailsService(kerUserDetailService);
+//        return provider;
+//    }
+
+
+    /**
+     * 自定义登陆验证方式
+     */
+    @Bean
+    public AuthenticationProvider cusutomProvider() {
+        CustomUserAuthenticationProvider customUserAuthenticationProvider = new CustomUserAuthenticationProvider();
+        customUserAuthenticationProvider.setUserDetailsService(userNameUserDetailsService);
+        customUserAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        return customUserAuthenticationProvider;
+    }
+
+
+    /**
+     * 密码加密算法
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        DelegatingPasswordEncoder delegatingPasswordEncoder = (DelegatingPasswordEncoder) PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        // 设置defaultPasswordEncoderForMatches为BCryptPasswordEncoder，如果需要兼容,则设计为兼容就好
+        delegatingPasswordEncoder.setDefaultPasswordEncoderForMatches(new BCryptPasswordEncoder());
+        return delegatingPasswordEncoder;
     }
 }
